@@ -1,114 +1,173 @@
-import { useState } from "react";
-import { BsYoutube, BsLinkedin, BsTwitterX, BsGithub } from "react-icons/bs";
-import { BiX, BiMenu } from "react-icons/bi";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import { FiMenu, FiX, FiGithub, FiLinkedin } from "react-icons/fi";
+import { navLinks, profile } from "../data/profile";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState("home");
 
-  const menuOpen = () => {
-    setIsOpen(!isOpen);
-  };
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Tandai section yang sedang terlihat.
+  useEffect(() => {
+    const sections = navLinks.map((l) => document.getElementById(l.id)).filter(Boolean);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
-    <nav className="fixed top-0 z-10 flex w-full items-center justify-between border-b border-b-gray-700 bg-black/70 px-16 py-6 text-white backdrop-blur-md md:justify-evenly">
-      <a
-        href="#home"
-className="bg-gradient-to-r from-pink-400 to-pink-700 bg-clip-text text-transparent opacity-80 text-3xl font-semibold transition-all duration-300 hover:opacity-100"
+    <header className="fixed inset-x-0 top-0 z-50">
+      <motion.div
+        style={{ scaleX: progress }}
+        className="absolute inset-x-0 top-0 h-[2px] origin-left bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-500"
+      />
+      <nav
+        className={`transition-all duration-300 ${
+          scrolled ? "border-b border-white/[0.06] bg-ink-950/70 backdrop-blur-xl" : "border-b border-transparent"
+        }`}
       >
-        Dwi Wahyu Susilowati
-      </a>
+        <div className="container-x flex h-16 items-center justify-between md:h-[72px]">
+          <a href="#home" className="group flex items-center gap-2.5" aria-label="Kembali ke beranda">
+            <span className="relative grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-fuchsia-500 via-violet-500 to-sky-500 font-display text-sm font-bold text-white shadow-lg shadow-violet-500/30">
+              DW
+            </span>
+            <span className="hidden font-display text-[15px] font-semibold tracking-tight text-white sm:block">
+              {profile.name}
+            </span>
+          </a>
 
-      <ul className="hidden md:flex gap-10">
-        <a href="#home" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-          <li>Home</li>
-        </a>
-        <a href="#tech" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-          <li>Tech</li>
-        </a>
-        <a href="#project" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-          <li>Projects</li>
-        </a>
-        <a href="#contact" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-          <li>Contact</li>
-        </a>
-      </ul>
-
-      <ul className="hidden md:flex gap-5">
-  <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-red-500 hover:opacity-100">
-    <a href="" target="_blank" rel="noopener noreferrer">
-      <BsYoutube />
-    </a>
-  </li>
-  <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-blue-500 hover:opacity-100">
-    <a
-      href="https://www.linkedin.com/in/dwi-wahyu-susilowati-39ab6a374/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <BsLinkedin />
-    </a>
-  </li>
-  <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-sky-500 hover:opacity-100">
-    <a href="" target="_blank" rel="noopener noreferrer">
-      <BsTwitterX />
-    </a>
-  </li>
-  <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-orange-500 hover:opacity-100">
-    <a
-      href="https://github.com/dwiwahyu06"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <BsGithub />
-    </a>
-  </li>
-</ul>
-
-
-      {isOpen ? (
-        <BiX className="block md:hidden text-4xl" onClick={menuOpen} />
-      ) : (
-        <BiMenu className="block md:hidden text-4xl" onClick={menuOpen} />
-      )}
-
-      {isOpen && (
-        <div
-          className={`fixed right-0 top-[84px] flex h-screen w-1/2 flex-col items-start justify-start gap-10 border-1 border-gray-800 bg-black/90 p-12 ${
-            isOpen ? "block" : "hidden"
-          }`}
-        >
-          <ul className="flex flex-col gap-8">
-            <a href="#Hero" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-              <li>Home</li>
-            </a>
-            <a href="#Tech" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-              <li>Tech</li>
-            </a>
-            <a href="#Project" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-              <li>Projects</li>
-            </a>
-            <a href="#Contact" className="cursor-pointer opacity-70 transition-all duration-300 hover:opacity-100">
-              <li>Contact</li>
-            </a>
+          <ul className="hidden items-center gap-1 rounded-full border border-white/[0.07] bg-white/[0.02] p-1 lg:flex">
+            {navLinks.slice(1).map((link) => (
+              <li key={link.id}>
+                <a
+                  href={`#${link.id}`}
+                  className={`relative block rounded-full px-4 py-1.5 text-sm transition-colors duration-200 ${
+                    active === link.id ? "text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {active === link.id && (
+                    <motion.span
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-full bg-white/[0.08]"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <span className="relative">{link.label}</span>
+                </a>
+              </li>
+            ))}
           </ul>
 
-          <ul className="flex flex-wrap gap-5">
-            <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-red-500 hover:opacity-100">
-              <BsYoutube />
-            </li>
-            <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-blue-500 hover:opacity-100">
-              <BsLinkedin />
-            </li>
-            <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-sky-500 hover:opacity-100">
-              <BsTwitterX />
-            </li>
-            <li className="cursor-pointer text-xl opacity-70 transition-all duration-300 hover:text-orange-500 hover:opacity-100">
-              <BsGithub />
-            </li>
-          </ul>
+          <div className="flex items-center gap-2">
+            <a
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="hidden h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-white/5 hover:text-white sm:grid"
+            >
+              <FiGithub size={18} />
+            </a>
+            <a
+              href={profile.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="hidden h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-white/5 hover:text-white sm:grid"
+            >
+              <FiLinkedin size={18} />
+            </a>
+            <a
+              href="#contact"
+              className="hidden rounded-lg bg-white px-4 py-2 text-sm font-semibold text-ink-950 transition hover:bg-slate-200 md:inline-block"
+            >
+              Hubungi Saya
+            </a>
+            <button
+              type="button"
+              onClick={() => setIsOpen((v) => !v)}
+              aria-label={isOpen ? "Tutup menu" : "Buka menu"}
+              aria-expanded={isOpen}
+              className="grid h-10 w-10 place-items-center rounded-lg border border-white/10 text-white lg:hidden"
+            >
+              {isOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+            </button>
+          </div>
         </div>
-      )}
-    </nav>
+      </nav>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-x-0 bottom-0 top-16 bg-ink-950/95 backdrop-blur-xl lg:hidden"
+          >
+            <motion.ul
+              initial="hidden"
+              animate="show"
+              variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+              className="container-x flex flex-col gap-1 pt-6"
+            >
+              {navLinks.map((link, i) => (
+                <motion.li
+                  key={link.id}
+                  variants={{ hidden: { opacity: 0, x: -16 }, show: { opacity: 1, x: 0 } }}
+                >
+                  <a
+                    href={`#${link.id}`}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-4 border-b border-white/[0.06] py-4 font-display text-2xl ${
+                      active === link.id ? "text-white" : "text-slate-400"
+                    }`}
+                  >
+                    <span className="font-mono text-xs text-fuchsia-300/70">0{i}</span>
+                    {link.label}
+                  </a>
+                </motion.li>
+              ))}
+              <motion.li
+                variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
+                className="mt-8 flex gap-3"
+              >
+                <a href={profile.github} target="_blank" rel="noopener noreferrer" className="btn-ghost flex-1">
+                  <FiGithub /> GitHub
+                </a>
+                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="btn-ghost flex-1">
+                  <FiLinkedin /> LinkedIn
+                </a>
+              </motion.li>
+            </motion.ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 };
 

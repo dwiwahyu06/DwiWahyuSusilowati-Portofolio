@@ -1,30 +1,28 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import Tech from "./components/Tech";
+import About from "./components/About";
+import Experience from "./components/Experience";
+import Skills from "./components/Skills";
 import Project from "./components/Project";
-import Contact from "./components/Contact";
 import Certificate from "./components/Certificate";
+import Contact from "./components/Contact";
+import Footer from "./components/Footer";
 
 function App() {
   return (
-    <Router>
+    <div className="relative overflow-x-clip">
       <Navbar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Hero />
-              <Tech />
-              <Project />
-              <Certificate />
-              <Contact />
-            </>
-          }
-        />
-      </Routes>
-    </Router>
+      <main>
+        <Hero />
+        <About />
+        <Experience />
+        <Skills />
+        <Project />
+        <Certificate />
+        <Contact />
+      </main>
+      <Footer />
+    </div>
   );
 }
 
